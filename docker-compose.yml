@@ -29,5 +29,21 @@ services:
     ports:
       - '8000:8000'
 
+  ui:
+    image: oven/bun:1.1-alpine
+    restart: unless-stopped
+    init: true
+    command:
+      - /bin/sh
+      - -eu
+      - -c
+      - bun install && exec bun run dev
+    working_dir: /app
+    volumes:
+      - ./ui:/app
+    ports:
+      - '3000:3000'
+
+
 volumes:
   venv-data:

@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@fontsource/geist-sans": "^5.1.0",
+    "@lottiefiles/dotlottie-svelte": "^0.4.0",
     "@tailwindcss/typography": "^0.5.15",
     "@tanstack/svelte-query": "^5.60.6",
     "axios": "^1.7.7",

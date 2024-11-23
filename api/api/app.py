@@ -40,4 +40,14 @@ async def upload(
     return await upload_handler(file)
 
 
+@api.post("/test/upload", tags=["receipt"])
+async def test_upload(file: UploadFile):
+    return {
+        "filename": file.filename,
+        "size": file.size,
+        "content_type": file.content_type,
+        "headers": file.headers,
+    }
+
+
 app.include_router(api)

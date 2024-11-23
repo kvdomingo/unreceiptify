@@ -54,4 +54,4 @@ combine-as-imports = true
 force-wrap-aliases = true
 
 [tool.ruff.lint.pep8-naming]
-classmethod-decorators = ["pydantic.validator"]
+classmethod-decorators = ["pydantic.validator", "pydantic.field_validator", "pydantic.model_validator"]

@@ -1,22 +1,34 @@
+from contextlib import asynccontextmanager
 from typing import Annotated
 
-from fastapi import FastAPI, File, UploadFile
+from fastapi import APIRouter, FastAPI, File, UploadFile
+from pillow_heif import register_heif_opener
 
 from api.handlers.upload import upload as upload_handler
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    register_heif_opener()
+    yield
+
 
 app = FastAPI(
     title="Unreceiptify API",
     docs_url="/api/docs",
     redoc_url="/api/redoc",
+    lifespan=lifespan,
 )
 
+api = APIRouter(prefix="/api")
 
-@app.get("/api/health")
+
+@api.get("/health", tags=["core"])
 async def health():
     return {"status": "ok"}
 
 
-@app.post("/api/upload")
+@api.post("/upload", tags=["receipt"])
 async def upload(
     file: Annotated[
         UploadFile,
@@ -26,3 +38,6 @@ async def upload(
     ],
 ):
     return await upload_handler(file)
+
+
+app.include_router(api)

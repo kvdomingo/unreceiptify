@@ -4,7 +4,7 @@ from pillow_heif import register_heif_opener
 
 from api.internal.receipt import extract_receipt_details
 
-register_heif_opener()
+
 
 ACCEPTED_TYPES = [
     "image/jpeg",

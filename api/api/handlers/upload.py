@@ -1,10 +1,7 @@
 import magic
 from fastapi import HTTPException, UploadFile, status
-from pillow_heif import register_heif_opener
 
 from api.internal.receipt import extract_receipt_details
-
-
 
 ACCEPTED_TYPES = [
     "image/jpeg",

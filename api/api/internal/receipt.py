@@ -5,7 +5,7 @@ from azure.ai.documentintelligence.models import AnalyzeResult
 from pillow_heif import register_heif_opener
 
 from api.dependencies import doc_intel_client
-from api.schemas.receipt import Receipt
+from api.schemas import Receipt
 
 register_heif_opener()
 

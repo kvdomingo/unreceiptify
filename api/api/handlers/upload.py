@@ -1,13 +1,27 @@
-from fastapi import UploadFile
-from langchain_ollama import ChatOllama
+import magic
+from fastapi import HTTPException, UploadFile, status
+from pillow_heif import register_heif_opener
 
-from api.schemas.receipt import Receipt
-from api.settings import settings
+from api.internal.receipt import extract_receipt_details
+
+register_heif_opener()
+
+ACCEPTED_TYPES = [
+    "image/jpeg",
+    "image/png",
+    "image/heic",
+    "image/heif",
+    "image/bmp",
+    "image/tiff",
+]
 
 
 async def upload(file: UploadFile):
-    llm = ChatOllama(
-        base_url=settings.OLLAMA_URL,
-        model=settings.OLLAMA_MODEL_NAME,
-        format="json",
-    ).with_structured_output(Receipt)
+    if (magic.from_buffer(file.file.read(4096), mime=True)) not in ACCEPTED_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Unsupported file type",
+        )
+
+    file.file.seek(0)
+    return await extract_receipt_details(file.file)

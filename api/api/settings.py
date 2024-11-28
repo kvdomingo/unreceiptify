@@ -15,8 +15,6 @@ class Settings(BaseSettings):
     BASE_DIR: Path = Path(__file__).resolve().parent.parent
     PYTHON_ENV: Literal["development", "production"] = "production"
 
-    OLLAMA_URL: AnyHttpUrl
-    OLLAMA_MODEL_NAME: str = "llava"
     AZURE_AI_ENDPOINT: AnyHttpUrl
     AZURE_AI_ACCESS_KEY: str
 
@@ -51,6 +49,11 @@ class Settings(BaseSettings):
     @property
     def IN_PRODUCTION(self) -> bool:
         return self.PYTHON_ENV == "production"
+
+    @computed_field
+    @property
+    def STATICFILES_DIR(self) -> Path:
+        return self.BASE_DIR / "static"
 
 
 settings = Settings()

@@ -53,8 +53,6 @@
       body.append("file", fileObj);
       const { data } = await api.upload(body);
 
-      console.debug(data);
-
       return {
         "Merchant Name": data.merchantName,
         "Merchant Address": data.merchantAddress,

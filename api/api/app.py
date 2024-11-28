@@ -2,9 +2,11 @@ from contextlib import asynccontextmanager
 from typing import Annotated
 
 from fastapi import APIRouter, FastAPI, File, UploadFile
+from fastapi.staticfiles import StaticFiles
 from pillow_heif import register_heif_opener
 
 from api.handlers.upload import upload as upload_handler
+from api.settings import settings
 
 
 @asynccontextmanager
@@ -41,3 +43,10 @@ async def upload(
 
 
 app.include_router(api)
+
+if settings.IN_PRODUCTION:
+    app.mount(
+        "/",
+        StaticFiles(directory=settings.STATICFILES_DIR, html=True),
+        name="static",
+    )

@@ -15,7 +15,7 @@
 </script>
 
 <QueryClientProvider client={queryClient}>
-  <main class="flex min-h-dvh w-full flex-col items-center justify-center gap-20">
+  <main class="flex min-h-dvh w-full flex-col items-center justify-center gap-20 py-12">
     <slot />
   </main>
 

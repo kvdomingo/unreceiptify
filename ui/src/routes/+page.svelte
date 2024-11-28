@@ -15,7 +15,8 @@
     TableRow,
   } from "@/components/ui/table/index.js";
   import { Button } from "@/components/ui/button";
-  import { MOCK_DATA, MOCK_RESPONSE } from "@/mock";
+  import { format, parse } from "date-fns";
+  import type { Item } from "@/types";
 
   let imgSrc: string | null = null;
   let file: File | null = null;
@@ -44,14 +45,30 @@
 
       const reader = new FileReader();
       reader.onloadend = async () => {
-        console.log(reader.result);
         imgSrc = reader.result as string;
       };
       reader.readAsDataURL(blob);
 
-      // const body = new FormData();
-      // body.append("file", fileObj);
-      // return await api.upload(body);
+      const body = new FormData();
+      body.append("file", fileObj);
+      const { data } = await api.upload(body);
+
+      console.debug(data);
+
+      return {
+        "Merchant Name": data.merchantName,
+        "Merchant Address": data.merchantAddress,
+        "Receipt Type": data.receiptType,
+        "Transaction Date": data.transactionDate,
+        "Transaction Time":
+          data.transactionDate && data.transactionTime
+            ? format(parse(data.transactionTime, "HH:mm:ss", data.transactionDate), "h:mm a")
+            : null,
+        "Currency": data.currency,
+        "Total": data.total?.toFixed(2) ?? null,
+        "Tax": data.totalTax?.toFixed(2) ?? null,
+        "Items": data.items,
+      } satisfies Record<string, string | number | null | Item[]>;
     },
   });
 
@@ -92,8 +109,8 @@
     <!--      </li>-->
     <!--    </ul>-->
     <!--  {/each}-->
-  {:else if imgSrc && file}
-    <!--{@const data = $mutation.data?.data ?? {}}-->
+  {:else if imgSrc && file && $mutation.data}
+    {@const data = $mutation.data}
     <div class="grid grid-cols-2 gap-12">
       <div>
         <img src={imgSrc} alt={file.name} />
@@ -103,18 +120,20 @@
           <TableCaption>Receipt details</TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead class="font-bold">Field</TableHead>
+              <TableHead>Field</TableHead>
               <TableHead>Value</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {#each Object.entries(MOCK_DATA) as [key, value]}
-              <TableRow>
-                <TableCell>{key}</TableCell>
-                <TableCell>
-                  {value ?? "N/A"}
-                </TableCell>
-              </TableRow>
+            {#each Object.entries(data) as [key, value]}
+              {#if key !== "Items"}
+                <TableRow>
+                  <TableCell>{key}</TableCell>
+                  <TableCell>
+                    {value ?? "N/A"}
+                  </TableCell>
+                </TableRow>
+              {/if}
             {/each}
           </TableBody>
         </Table>
@@ -125,15 +144,21 @@
             <TableRow>
               <TableHead class="font-bold">Name</TableHead>
               <TableHead>Quantity</TableHead>
-              <TableHead>Total Price</TableHead>
+              <TableHead align="right">Total Price</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {#each Object.values(MOCK_RESPONSE.items) as value}
+            {#each data.Items ?? [] as item}
               <TableRow>
-                <TableCell>{value.description ?? "N/A"}</TableCell>
-                <TableCell>{value.quantity ?? "N/A"}</TableCell>
-                <TableCell>{value.totalPrice ?? "N/A"}</TableCell>
+                {#if data.Items.length === 0}
+                  <TableCell colspan={3}>
+                    <i class="text-background">No items detected</i>
+                  </TableCell>
+                {:else}
+                  <TableCell>{item.description ?? "N/A"}</TableCell>
+                  <TableCell>{item.quantity ?? "N/A"}</TableCell>
+                  <TableCell>{item.totalPrice?.toFixed(2) ?? "N/A"}</TableCell>
+                {/if}
               </TableRow>
             {/each}
           </TableBody>

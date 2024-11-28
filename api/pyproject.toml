@@ -22,6 +22,7 @@ azure-ai-documentintelligence = "^1.0.0b4"
 python-magic = "^0.4.27"
 python-multipart = "^0.0.17"
 loguru = "^0.7.2"
+uvicorn = "^0.32.1"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.7.3"

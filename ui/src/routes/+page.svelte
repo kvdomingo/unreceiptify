@@ -6,20 +6,18 @@
   import { api } from "$lib/api";
 
   const mutation = createMutation({
-    mutationFn: api.testUpload,
+    mutationFn: api.upload,
     mutationKey: ["upload"],
   });
 
   function handleFilesSelect(e: CustomEvent) {
     const { acceptedFiles } = e.detail;
 
-    if (acceptedFiles.length() == 0) return;
+    if ([...acceptedFiles].length == 0) return;
 
     const file: File = acceptedFiles[0];
-    const blob = new Blob([file], { type: file.type });
-
     const formData = new FormData();
-    formData.append("file", blob);
+    formData.append("file", file);
 
     $mutation.mutate(formData);
   }

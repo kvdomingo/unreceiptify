@@ -9,13 +9,10 @@ const axi = axios.create({ baseURL });
 
 export const api = {
   healthCheck(): Promise<AxiosResponse<string>> {
-    return axi.get("/api/health", { responseType: "text" });
+    return axi.get("/health", { responseType: "text" });
   },
   upload(body: FormData): Promise<AxiosResponse<Receipt>> {
-    return axi.post("/api/upload", { body });
-  },
-  testUpload(body: FormData): Promise<AxiosResponse> {
-    return axi.post("/api/test/upload", { body });
+    return axi.post("/upload", body);
   },
 };
 

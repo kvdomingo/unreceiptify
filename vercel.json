@@ -3,10 +3,14 @@
   "env": {
     "PYTHONPATH": "api/"
   },
+  "framework": "svelte",
+  "outputDirectory": "ui/.vercel",
+  "installCommand": "cd ui && bun install",
+  "buildCommand": "cd ui && bun run build",
   "functions": {
     "api/api/app.py": {
       "runtime": "@vercel/python@4.5.1",
-      "includeFiles": "api/api/**"
+      "includeFiles": "api/**/*"
     }
   },
   "rewrites": [

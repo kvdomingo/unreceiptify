@@ -2,7 +2,7 @@
   "regions": ["sfo1"],
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/api/(.*)",
       "destination": "/api/api/app"
     }
   ]

@@ -66,4 +66,4 @@ tasks:
   requirements:
     desc: Generate requirements.txt
     dir: api
-    cmd: poetry export -f requirements.txt --without-hashes --without dev -o requirements.txt
+    cmd: poetry export -f requirements.txt --without-hashes --without dev -o ../requirements.txt

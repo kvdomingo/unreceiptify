@@ -1,9 +1,18 @@
 {
   "regions": ["sfo1"],
+  "env": {
+    "PYTHONPATH": "api/"
+  },
+  "functions": {
+    "api/api/app.py": {
+      "runtime": "@vercel/python@4.5.1",
+      "includeFiles": "api/api/**"
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/api/app"
+      "destination": "/api/api/app.py"
     }
   ]
 }

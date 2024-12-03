@@ -17,6 +17,7 @@
   import { Button } from "@/components/ui/button";
   import { format, parse } from "date-fns";
   import type { Item } from "@/types";
+  import { ScrollArea } from "@/components/ui/scroll-area";
 
   let imgSrc: string | null = null;
   let file: File | null = null;
@@ -37,8 +38,6 @@
         }),
       ]);
 
-      const { data } = apiRes;
-
       if (await isHeic(fileObj)) {
         previewFile = new File([heicRes], fileObj.name, { type: "image/jpeg" });
       } else {
@@ -52,6 +51,8 @@
         imgSrc = reader.result as string;
       };
       reader.readAsDataURL(blob);
+
+      const { data } = apiRes;
 
       return {
         "Merchant Name": data.merchantName,
@@ -87,7 +88,13 @@
   }
 </script>
 
-<h1 class="text-4xl font-black">Unreceiptify</h1>
+<h1
+  class="
+  bg-gradient-to-r from-[#fefeff] to-[#71befa] bg-clip-text text-4xl font-bold text-transparent
+  "
+>
+  Unreceiptify
+</h1>
 
 <div class="container flex justify-center">
   {#if $mutation.isPending}
@@ -101,10 +108,11 @@
   {:else if imgSrc && file && $mutation.data}
     {@const data = $mutation.data}
     <div class="grid grid-cols-2 gap-12">
-      <div>
+      <div class="h-full">
         <img src={imgSrc} alt={file.name} />
       </div>
-      <div>
+
+      <ScrollArea class="max-h-full">
         <Table>
           <TableCaption>Receipt details</TableCaption>
           <TableHeader>
@@ -153,8 +161,10 @@
           </TableBody>
         </Table>
 
-        <Button on:click={handleReset}>Start over</Button>
-      </div>
+        <Button variant="outline" on:click={handleReset} data-umami-event="Start over">
+          Start over
+        </Button>
+      </ScrollArea>
     </div>
   {:else}
     <Dropzone
@@ -163,10 +173,14 @@
       on:drop={handleFilesSelect}
       disableDefaultStyles
       containerClasses="
-      flex items-center justify-center p-20 border border-dashed border-white border-2
-      rounded-xl hover:bg-slate-900 transition transition-[background-color,box-shadow] duration-200
-      shadow-lg hover:shadow-xl
+      flex items-center justify-center p-20 border border-solid border-white
+      rounded-xl hover:bg-slate-900 transition transition-[background-color] duration-200
       "
-    />
+      data-umami-event="File upload"
+    >
+      <span class="bg-gradient-to-r from-[#fefeff] to-[#71befa] bg-clip-text text-transparent">
+        Drag 'n' drop a file here, or click to select a file
+      </span>
+    </Dropzone>
   {/if}
 </div>

@@ -25,18 +25,22 @@
   const mutation = createMutation({
     mutationKey: ["upload"],
     mutationFn: async (fileObj: File) => {
+      const body = new FormData();
+      body.append("file", fileObj);
+
+      const [apiRes, heicRes] = await Promise.all([
+        api.upload(body),
+        heicTo({
+          blob: fileObj,
+          type: "image/jpeg",
+          quality: 0.9,
+        }),
+      ]);
+
+      const { data } = apiRes;
+
       if (await isHeic(fileObj)) {
-        previewFile = new File(
-          [
-            await heicTo({
-              blob: fileObj,
-              type: "image/jpeg",
-              quality: 0.9,
-            }),
-          ],
-          fileObj.name,
-          { type: "image/jpeg" },
-        );
+        previewFile = new File([heicRes], fileObj.name, { type: "image/jpeg" });
       } else {
         previewFile = fileObj;
       }
@@ -44,14 +48,10 @@
       const blob = new Blob([previewFile], { type: fileObj.type });
 
       const reader = new FileReader();
-      reader.onloadend = async () => {
+      reader.onloadend = () => {
         imgSrc = reader.result as string;
       };
       reader.readAsDataURL(blob);
-
-      const body = new FormData();
-      body.append("file", fileObj);
-      const { data } = await api.upload(body);
 
       return {
         "Merchant Name": data.merchantName,
@@ -98,15 +98,6 @@
         loop
       />
     </div>
-    <!--{:else if $mutation.data}-->
-    <!--  {@const data = $mutation.data?.data ?? {}}-->
-    <!--  {#each Object.entries(data) as [key, value]}-->
-    <!--    <ul>-->
-    <!--      <li>-->
-    <!--        <b>{key}</b>: {value}-->
-    <!--      </li>-->
-    <!--    </ul>-->
-    <!--  {/each}-->
   {:else if imgSrc && file && $mutation.data}
     {@const data = $mutation.data}
     <div class="grid grid-cols-2 gap-12">

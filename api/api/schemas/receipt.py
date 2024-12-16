@@ -18,7 +18,7 @@ class Item(BaseModel):
             "valueString",
         ),
     )
-    quantity: int | None = Field(
+    quantity: int | float | None = Field(
         None,
         validation_alias=AliasPath(
             "valueObject",

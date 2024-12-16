@@ -1,5 +1,7 @@
 version: '3'
 
+set: [ e, u, x, pipefail ]
+
 env:
   NAME: unreceiptify
   COMMIT_SHA:
@@ -14,6 +16,14 @@ tasks:
   default:
     cmd:
       task: up
+
+  setup:
+    desc: Initial setup
+    cmds:
+      - pip install -U pre-commit
+      - pre-commit install
+      - cd api && poetry install --no-root --with dev
+      - cd ui && bun i -D
 
   up:
     desc: Build and start Docker containers

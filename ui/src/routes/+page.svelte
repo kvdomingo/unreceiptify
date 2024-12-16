@@ -26,20 +26,18 @@
   const mutation = createMutation({
     mutationKey: ["upload"],
     mutationFn: async (fileObj: File) => {
-      const body = new FormData();
-      body.append("file", fileObj);
-
-      const [apiRes, heicRes] = await Promise.all([
-        api.upload(body),
-        heicTo({
-          blob: fileObj,
-          type: "image/jpeg",
-          quality: 0.9,
-        }),
-      ]);
-
       if (await isHeic(fileObj)) {
-        previewFile = new File([heicRes], fileObj.name, { type: "image/jpeg" });
+        previewFile = new File(
+          [
+            await heicTo({
+              blob: fileObj,
+              type: "image/jpeg",
+              quality: 0.9,
+            }),
+          ],
+          fileObj.name,
+          { type: "image/jpeg" },
+        );
       } else {
         previewFile = fileObj;
       }
@@ -52,7 +50,9 @@
       };
       reader.readAsDataURL(blob);
 
-      const { data } = apiRes;
+      const body = new FormData();
+      body.append("file", fileObj);
+      const { data } = await api.upload(body);
 
       return {
         "Merchant Name": data.merchantName,

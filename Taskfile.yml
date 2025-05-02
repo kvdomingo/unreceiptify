@@ -22,8 +22,8 @@ tasks:
     cmds:
       - pip install -U pre-commit
       - pre-commit install
-      - cd api && poetry install --no-root --with dev
-      - cd ui && bun i -D
+      - cd api && uv sync && cd ..
+      - cd ui && bun install && cd ..
 
   up:
     desc: Build and start Docker containers

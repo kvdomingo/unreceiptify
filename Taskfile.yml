@@ -3,14 +3,8 @@ version: '3'
 set: [ e, u, x, pipefail ]
 
 env:
-  NAME: unreceiptify
   COMMIT_SHA:
     sh: git rev-parse HEAD
-
-vars: { }
-
-dotenv:
-  - ./api/.env
 
 tasks:
   default:
@@ -27,48 +21,54 @@ tasks:
 
   up:
     desc: Build and start Docker containers
-    cmd: docker compose --project-name {{.NAME}} up --detach --build --remove-orphans {{.CLI_ARGS}}
+    cmd: infisical run -- docker compose up --detach --build --remove-orphans {{.CLI_ARGS}}
 
   logs:
     desc: Attach to Docker logs
-    cmd: docker compose --project-name {{.NAME}} logs --follow {{.CLI_ARGS}}
+    cmd: docker compose logs --follow {{.CLI_ARGS}}
 
   stop:
     desc: Stop containers
-    cmd: docker compose --project-name {{.NAME}} stop {{.CLI_ARGS}}
+    cmd: docker compose stop {{.CLI_ARGS}}
 
   restart:
     desc: Restart containers
-    cmd: docker compose --project-name {{.NAME}} restart {{.CLI_ARGS}}
+    cmd: docker compose restart {{.CLI_ARGS}}
 
   exec:
     desc: Run a command in the specified container
-    cmd: docker compose --project-name {{.NAME}} exec -- {{.CLI_ARGS}}
+    cmd: docker compose exec -- {{.CLI_ARGS}}
 
   down:
     desc: Remove containers
-    cmd: docker compose --project-name {{.NAME}} down --remove-orphans {{.CLI_ARGS}}
+    cmd: docker compose down --remove-orphans {{.CLI_ARGS}}
 
   clean:
     desc: Nuke everything
-    cmd: docker compose --project-name {{.NAME}} down -v --remove-orphans {{.CLI_ARGS}}
+    cmd: docker compose down -v --remove-orphans {{.CLI_ARGS}}
 
   tf-init:
     desc: Initialize Terraform
     dir: infra/terraform
-    cmd: terraform init -backend-config=gcs.tfbackend
+    cmd: >
+      infisical run -- /bin/bash -euxo pipefail -c '
+      terraform init
+      -backend-config "container_name=${TF_VAR_container_name}"
+      -backend-config "resource_group_name=${TF_VAR_resource_group_name}"
+      -backend-config "storage_account_name=${TF_VAR_storage_account_name}"
+      '
 
   tf-plan:
     desc: Plan Terraform changes
     dir: infra/terraform
-    cmd: terraform plan -out=.tfplan
+    cmd: infisical run -- terraform plan -out=.tfplan
 
   tf-apply:
     desc: Apply Terraform changes
     dir: infra/terraform
-    cmd: terraform apply .tfplan
+    cmd: infisical run -- terraform apply .tfplan
 
   tf-output:
     desc: Print Terraform output
     dir: infra/terraform
-    cmd: terraform output -json
+    cmd: infisical run -- terraform output -json

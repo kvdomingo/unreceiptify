@@ -1,22 +1,21 @@
 FROM python:3.12-bookworm
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV POETRY_VERSION=1.8.4
-ENV POETRY_HOME=/opt/poetry
-ENV DAGSTER_HOME=/opt/dagster
-ENV PATH=${PATH}:${POETRY_HOME}/bin
+ENV PYTHONUNBUFFERED=1
+ENV UV_VERSION=0.7.2
+ENV PATH="/root/.local/bin:/root/.cargo/bin:${PATH}"
+
+WORKDIR /tmp
 
 SHELL [ "/bin/bash", "-euxo", "pipefail", "-c" ]
+RUN apt-get install -y --no-install-recommends curl ca-certificates
 
-# hadolint ignore=DL3009
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
-    curl -sSL https://install.python-poetry.org | python - && \
-    poetry config virtualenvs.create true && \
-    poetry config virtualenvs.in-project true
+ADD https://astral.sh/uv/${UV_VERSION}/install.sh install-uv.sh
+
+SHELL [ "/bin/sh", "-eu", "-c" ]
+RUN chmod +x /tmp/install-uv.sh && /tmp/install-uv.sh
 
 WORKDIR /app
 
-ENTRYPOINT [ "/bin/bash", "-c" ]
+ENTRYPOINT [ "/bin/bash", "-euxo", "pipefail", "-c" ]

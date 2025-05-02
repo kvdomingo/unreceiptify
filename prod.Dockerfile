@@ -1,27 +1,33 @@
 FROM python:3.12-slim AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV POETRY_VERSION=1.8.4
-ENV POETRY_HOME=/opt/poetry
-ENV PATH=${PATH}:${POETRY_HOME}/bin
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV UV_VERSION=0.7.2
+ENV PATH="/root/.local/bin:/root/.cargo/bin:${PATH}"
 
 WORKDIR /app
 
 FROM base AS build
 
-COPY ./api/pyproject.toml ./api/poetry.lock ./
-
 SHELL [ "/bin/sh", "-eu", "-c" ]
 
-# hadolint ignore=DL4006
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
-    curl -sSL https://install.python-poetry.org | python - && \
-    poetry config virtualenvs.create true && \
-    poetry config virtualenvs.in-project true && \
-    poetry install --no-root --without dev
+SHELL [ "/bin/bash", "-euxo", "pipefail", "-c" ]
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
 
-FROM oven/bun:1.1-alpine AS web-build
+ADD https://astral.sh/uv/${UV_VERSION}/install.sh /tmp/install-uv.sh
+
+COPY ./api/pyproject.toml ./api/uv.lock ./
+
+SHELL [ "/bin/sh", "-eu", "-c" ]
+# hadolint ignore=DL4006
+RUN chmod +x /tmp/install-uv.sh &&  \
+    /tmp/install-uv.sh && \
+    uv venv .venv && \
+    uv export --format requirements.txt --no-hashes --no-annotate --no-header --no-dev | \
+    uv pip install --no-cache-dir -r /dev/stdin
+
+FROM oven/bun:1.2-alpine AS web-build
 
 WORKDIR /tmp
 
@@ -46,4 +52,4 @@ COPY ./api ./
 COPY --from=build /app/.venv ./.venv/
 COPY --from=web-build /tmp/build ./static/
 
-CMD [ "/app/.venv/bin/uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000" ]
+CMD [ "/app/.venv/bin/fastapi", "run", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "api/app.py" ]

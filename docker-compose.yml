@@ -3,17 +3,18 @@ services:
     build: api
     restart: unless-stopped
     init: true
-    env_file: api/.env
+    environment:
+      PYTHON_ENV: development
+      AZURE_AI_ACCESS_KEY: ${AZURE_AI_ACCESS_KEY}
+      AZURE_AI_ENDPOINT: ${AZURE_AI_ENDPOINT}
     command:
       - >
-        poetry install --no-root;
-        exec poetry run uvicorn
+        uv sync;
+        exec uv run fastapi dev
         --host 0.0.0.0
         --port 8000
         --reload
-        --log-level debug
-        --access-log
-        api:app;
+        api/app.py;
     volumes:
       - ./api:/app
       - venv-data:/app/.venv

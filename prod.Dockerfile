@@ -1,14 +1,15 @@
-FROM python:3.12-slim AS base
+FROM python:3.13-slim AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV UV_VERSION=0.7.2
-ENV PATH="/root/.local/bin:/root/.cargo/bin:${PATH}"
+ENV UV_VERSION=0.10.11
 
 WORKDIR /app
 
 FROM base AS build
+
+ENV PATH="/root/.local/bin:/root/.cargo/bin:${PATH}"
 
 SHELL [ "/bin/sh", "-eu", "-c" ]
 
@@ -42,14 +43,19 @@ FROM base AS prod
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends libmagic1 && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    useradd --no-create-home --uid 1000 --user-group app && \
+    mkdir -p /app && \
+    chown -R 1000:1000 /app
 
 WORKDIR /app
 
-SHELL [ "/bin/sh", "-eu", "-c" ]
+USER app
+
 
 COPY ./api ./
-COPY --from=build /app/.venv ./.venv/
-COPY --from=web-build /tmp/build ./static/
+COPY --from=build --chown=app:app /app/.venv ./.venv/
+COPY --from=web-build --chown=app:app /tmp/build ./static/
 
+SHELL [ "/bin/sh", "-eu", "-c" ]
 CMD [ "/app/.venv/bin/fastapi", "run", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "api/app.py" ]

@@ -38,12 +38,16 @@ class Item(BaseModel):
 
 
 class Receipt(BaseModel):
-    receipt_type: str = Field(validation_alias=AliasPath("docType"))
+    receipt_type: str = Field(
+        validation_alias=AliasPath("fields", "ReceiptType", "valueString")
+    )
     currency: str | None = Field(
         None,
-        min_length=3,
+        min_length=1,
         max_length=3,
-        validation_alias=AliasPath("fields", "Total", "valueCurrency", "currencyCode"),
+        validation_alias=AliasPath(
+            "fields", "Total", "valueCurrency", "currencySymbol"
+        ),
     )
     total: float | None = Field(
         None,

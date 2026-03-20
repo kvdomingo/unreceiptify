@@ -48,6 +48,8 @@
     "@tailwindcss/typography": "^0.5.15",
     "@tanstack/svelte-query": "^5.60.6",
     "axios": "^1.9.0",
+    "baseline-browser-mapping": "^2.10.9",
+    "caniuse-lite": "^1.0.30001780",
     "date-fns": "^4.1.0",
     "heic-to": "^1.0.2",
     "svelte-file-dropzone": "^2.0.9"

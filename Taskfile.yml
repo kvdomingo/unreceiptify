@@ -1,6 +1,6 @@
-version: '3'
+version: "3"
 
-set: [ e, u, x, pipefail ]
+set: [e, u, x, pipefail]
 
 env:
   COMMIT_SHA:
@@ -14,14 +14,14 @@ tasks:
   setup:
     desc: Initial setup
     cmds:
-      - pip install -U pre-commit
-      - pre-commit install
-      - cd api && uv sync && cd ..
+      - pip install -U prek
+      - prek install
+      - cd api && uv sync --dev && cd ..
       - cd ui && bun install && cd ..
 
   up:
     desc: Build and start Docker containers
-    cmd: infisical run -- docker compose up --detach --build --remove-orphans {{.CLI_ARGS}}
+    cmd: infisical run -- docker compose up --build --remove-orphans {{.CLI_ARGS}}
 
   logs:
     desc: Attach to Docker logs

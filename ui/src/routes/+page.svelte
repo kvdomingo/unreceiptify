@@ -23,6 +23,12 @@
   let file: File | null = null;
   let previewFile: File | null = null;
 
+  function formatCurrency(value: number | null) {
+    return value ? Intl.NumberFormat('en-PH', {
+      style: 'currency',
+    }).format(value) : "N/A";
+  }
+
   const mutation = createMutation({
     mutationKey: ["upload"],
     mutationFn: async (fileObj: File) => {
@@ -64,8 +70,8 @@
             ? format(parse(data.transactionTime, "HH:mm:ss", data.transactionDate), "h:mm a")
             : null,
         "Currency": data.currency,
-        "Total": data.total?.toFixed(2) ?? null,
-        "Tax": data.totalTax?.toFixed(2) ?? null,
+        "Total": formatCurrency(data.total),
+        "Tax": formatCurrency(data.totalTax),
         "Items": data.items,
       } satisfies Record<string, string | number | null | Item[]>;
     },
@@ -154,7 +160,7 @@
                 {:else}
                   <TableCell>{item.description ?? "N/A"}</TableCell>
                   <TableCell>{item.quantity ?? "N/A"}</TableCell>
-                  <TableCell>{item.totalPrice?.toFixed(2) ?? "N/A"}</TableCell>
+                  <TableCell>{formatCurrency(item.totalPrice)}</TableCell>
                 {/if}
               </TableRow>
             {/each}
